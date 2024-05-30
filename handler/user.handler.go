@@ -167,3 +167,61 @@ func GetAllSpecialties(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(specialties)
 }
+
+func UpdateUserData(c *fiber.Ctx) error {
+	user := new(dto.UpdateUserDataRequestDTO)
+
+	if err := c.BodyParser(user); err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "Error parsing new user data",
+			"error":   err.Error(),
+		})
+	}
+
+	validate := validator.New()
+	errValidate := validate.Struct(user)
+
+	if errValidate != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "Error validating new user data",
+			"error":   errValidate.Error(),
+		})
+	}
+
+	id := c.Params("id")
+	var existingUser entity.User
+	res := database.DB.Where("id = ?", id).First(&existingUser)
+	if res.RowsAffected == 0 {
+		return c.Status(404).JSON(fiber.Map{
+			"message": "User not found",
+		})
+	}
+
+	existingUser.FullName = user.FullName
+	existingUser.Email = user.Email
+	existingUser.BirthDate, _ = time.Parse("2006-01-02", user.BirthDate)
+	existingUser.PhoneNumber = user.PhoneNumber
+	existingUser.Address = user.Address
+	existingUser.Bio = user.Bio
+
+	updateUserRes := database.DB.Save(&existingUser)
+
+	if updateUserRes.Error != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"message": "Error updating user data",
+			"error":   updateUserRes.Error.Error(),
+		})
+	}
+
+	responseDTO := dto.UpdateUserDataResponseDTO{
+		Message:     "User data updated successfully",
+		FullName:    existingUser.FullName,
+		Email:       existingUser.Email,
+		BirthDate:   existingUser.BirthDate.Format("2006-01-02"),
+		PhoneNumber: existingUser.PhoneNumber,
+		Address:     existingUser.Address,
+		Bio:         existingUser.Bio,
+	}
+
+	return c.Status(200).JSON(responseDTO)
+}

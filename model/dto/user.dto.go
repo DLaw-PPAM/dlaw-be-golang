@@ -24,3 +24,22 @@ type UserRegisterResponseDTO struct {
 	Address     string    `json:"address"`
 	Bio         string    `json:"bio"`
 }
+
+type UpdateUserDataRequestDTO struct {
+	FullName    string `json:"full_name"`
+	Email       string `json:"email"`
+	BirthDate   string `json:"birth_date"`
+	PhoneNumber string `json:"phone_number"`
+	Address     string `json:"address"`
+	Bio         string `json:"bio"`
+}
+
+type UpdateUserDataResponseDTO struct {
+	Message     string `json:"message"`
+	FullName    string `json:"full_name"`
+	Email       string `json:"email"`
+	BirthDate   string `json:"birth_date"`
+	PhoneNumber string `json:"phone_number"`
+	Address     string `json:"address"`
+	Bio         string `json:"bio"`
+}

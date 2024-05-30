@@ -18,10 +18,10 @@ func AddNewCase(c *fiber.Ctx) error {
 	}
 
 	var Lawyer entity.LawyerUser
-	database.DB.Where("id = ?", newCase.LawyerID).First(&Lawyer)
+	database.DB.Where("id = ?", newCase.Lawyer.ID).First(&Lawyer)
 
 	//if clientid is the same as lawyerid return
-	if Lawyer.ClientID == newCase.LawyerID {
+	if Lawyer.ClientID == newCase.Lawyer.ID {
 		return c.Status(400).JSON(fiber.Map{
 			"message": "Client and lawyer cannot be the same",
 		})
@@ -36,7 +36,7 @@ func AddNewCase(c *fiber.Ctx) error {
 		Hour:        newCase.Hour,
 		AdditionFee: newCase.AdditionFee,
 		ClientID:    newCase.ClientID,
-		LawyerID:    newCase.LawyerID,
+		Lawyer:      newCase.Lawyer,
 	}
 
 	newCaseRes := database.DB.Create(&newCaseReq)
@@ -56,7 +56,7 @@ func AddNewCase(c *fiber.Ctx) error {
 
 func GetAllCase(c *fiber.Ctx) error {
 	var cases []entity.Case
-	database.DB.Find(&cases)
+	database.DB.Preload("Lawyer").Find(&cases)
 
 	return c.Status(200).JSON(fiber.Map{
 		"message": "All cases",
@@ -67,7 +67,7 @@ func GetAllCase(c *fiber.Ctx) error {
 func GetCaseByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var cases entity.Case
-	database.DB.Where("id = ?", id).First(&cases)
+	database.DB.Preload("Lawyer").Where("id = ?", id).First(&cases)
 
 	return c.Status(200).JSON(fiber.Map{
 		"message": "Case by ID",
@@ -78,10 +78,74 @@ func GetCaseByID(c *fiber.Ctx) error {
 func GetCaseByUserID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var cases []entity.Case
-	database.DB.Where("client_id = ?", id).Find(&cases)
+	database.DB.Preload("Lawyer").Where("client_id = ?", id).Find(&cases)
 
 	return c.Status(200).JSON(fiber.Map{
 		"message": "Case by user ID",
+		"case":    cases,
+	})
+}
+
+func UpdateCaseByID(c *fiber.Ctx) error {
+	updateCase := new(dto.UpdateCaseByIDRequestDTO)
+
+	if err := c.BodyParser(updateCase); err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "Error parsing update case",
+			"error":   err.Error(),
+		})
+	}
+
+	var cases entity.Case
+	database.DB.Where("id = ?", updateCase.ID).First(&cases)
+
+	if cases.ID == (entity.Case{}).ID {
+		return c.Status(404).JSON(fiber.Map{
+			"message": "Case not found",
+		})
+	}
+
+	cases.Subject = updateCase.Subject
+	cases.Media = updateCase.Media
+	cases.Notes = updateCase.Notes
+	cases.Status = updateCase.Status
+	cases.Hour = updateCase.Hour
+	cases.AdditionFee = updateCase.AdditionFee
+	cases.ClientID = updateCase.ClientID
+	cases.Lawyer = updateCase.Lawyer
+
+	database.DB.Save(&cases)
+
+	return c.Status(200).JSON(fiber.Map{
+		"message": "Case updated",
+		"case":    cases,
+	})
+
+}
+
+func DeleteCaseByID(c *fiber.Ctx) error {
+	deleteCase := new(dto.DeleteCaseRequestDTO)
+
+	if err := c.BodyParser(deleteCase); err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "Error parsing delete case",
+			"error":   err.Error(),
+		})
+	}
+
+	var cases entity.Case
+	database.DB.Where("id = ?", deleteCase.ID).First(&cases)
+
+	if cases.ID == (entity.Case{}).ID {
+		return c.Status(404).JSON(fiber.Map{
+			"message": "Case not found",
+		})
+	}
+
+	database.DB.Delete(&cases)
+
+	return c.Status(200).JSON(fiber.Map{
+		"message": "Case deleted",
 		"case":    cases,
 	})
 }

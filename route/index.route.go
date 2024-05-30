@@ -13,6 +13,7 @@ func SetupRoutes(app *fiber.App) {
 	users := v1.Group("/users")
 	users.Get("/", handler.GetAllUsers)
 	users.Get("/find/:id", handler.GetUserByID)
+	users.Patch("/update/:id", handler.UpdateUserData)
 	users.Post("/register", handler.UserRegister)
 	users.Post("/login", handler.UserLogin)
 	users.Post("/specialty", handler.AddSpecialties)
@@ -30,4 +31,7 @@ func SetupRoutes(app *fiber.App) {
 	cases.Post("/", handler.AddNewCase)
 	cases.Get("/", handler.GetAllCase)
 	cases.Get("/:id", handler.GetCaseByID)
+	cases.Get("/client/:id", handler.GetCaseByUserID)
+	cases.Delete("/delete", handler.DeleteCaseByID)
+	cases.Patch("/update", handler.UpdateCaseByID)
 }
