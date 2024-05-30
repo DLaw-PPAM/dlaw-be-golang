@@ -18,10 +18,10 @@ func AddNewCase(c *fiber.Ctx) error {
 	}
 
 	var Lawyer entity.LawyerUser
-	database.DB.Where("id = ?", newCase.Lawyer.ID).First(&Lawyer)
+	database.DB.Where("id = ?", newCase.LawyerID).First(&Lawyer)
 
 	//if clientid is the same as lawyerid return
-	if Lawyer.ClientID == newCase.Lawyer.ID {
+	if Lawyer.ClientID == newCase.LawyerID {
 		return c.Status(400).JSON(fiber.Map{
 			"message": "Client and lawyer cannot be the same",
 		})
@@ -36,7 +36,7 @@ func AddNewCase(c *fiber.Ctx) error {
 		Hour:        newCase.Hour,
 		AdditionFee: newCase.AdditionFee,
 		ClientID:    newCase.ClientID,
-		Lawyer:      newCase.Lawyer,
+		LawyerID:    newCase.LawyerID,
 	}
 
 	newCaseRes := database.DB.Create(&newCaseReq)
@@ -56,7 +56,7 @@ func AddNewCase(c *fiber.Ctx) error {
 
 func GetAllCase(c *fiber.Ctx) error {
 	var cases []entity.Case
-	database.DB.Preload("Lawyer").Find(&cases)
+	database.DB.Find(&cases)
 
 	return c.Status(200).JSON(fiber.Map{
 		"message": "All cases",
@@ -67,7 +67,7 @@ func GetAllCase(c *fiber.Ctx) error {
 func GetCaseByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var cases entity.Case
-	database.DB.Preload("Lawyer").Where("id = ?", id).First(&cases)
+	database.DB.Where("id = ?", id).First(&cases)
 
 	return c.Status(200).JSON(fiber.Map{
 		"message": "Case by ID",
@@ -78,7 +78,7 @@ func GetCaseByID(c *fiber.Ctx) error {
 func GetCaseByUserID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var cases []entity.Case
-	database.DB.Preload("Lawyer").Where("client_id = ?", id).Find(&cases)
+	database.DB.Where("client_id = ?", id).Find(&cases)
 
 	return c.Status(200).JSON(fiber.Map{
 		"message": "Case by user ID",
@@ -112,7 +112,7 @@ func UpdateCaseByID(c *fiber.Ctx) error {
 	cases.Hour = updateCase.Hour
 	cases.AdditionFee = updateCase.AdditionFee
 	cases.ClientID = updateCase.ClientID
-	cases.Lawyer = updateCase.Lawyer
+	cases.LawyerID = updateCase.LawyerID
 
 	database.DB.Save(&cases)
 

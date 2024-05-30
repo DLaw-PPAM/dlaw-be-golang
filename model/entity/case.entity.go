@@ -15,7 +15,7 @@ type Case struct {
 	Status      string         `json:"status"`
 	Hour        int            `json:"hour"`
 	AdditionFee int            `json:"addition_fee"`
-	Lawyer      LawyerUser     `json:"lawyer_id" `
+	LawyerID    uuid.UUID      `json:"lawyer_id"`
 	ClientID    uuid.UUID      `json:"client_id"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
