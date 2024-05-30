@@ -33,10 +33,12 @@ func AddLawyer(c *fiber.Ctx) error {
 
 	// Add lawyer to database
 	newLawyer := entity.LawyerUser{
-		ClientID:     lawyer.ClientID,
-		PricePerHour: lawyer.PricePerHour,
-		Rating:       lawyer.Rating,
-		User:         User,
+		ClientID:       lawyer.ClientID,
+		PricePerHour:   lawyer.PricePerHour,
+		Rating:         lawyer.Rating,
+		User:           User,
+		ClientName:     User.FullName,
+		ProfilePicture: lawyer.ProfilePicture,
 	}
 
 	newLawyerRes := database.DB.Create(&newLawyer)
