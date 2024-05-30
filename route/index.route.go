@@ -23,6 +23,8 @@ func SetupRoutes(app *fiber.App) {
 	lawyers.Get("/", handler.GetAllLawyers)
 	lawyers.Get("/:id", handler.GetLawyerByID)
 	lawyers.Post("/add/specialty", handler.AddSpecialtiestoLawyer)
+	lawyers.Get("/search/name", handler.SearchLawyer)
+	lawyers.Post("/add/review", handler.AddReview)
 
 	cases := v1.Group("/cases")
 	cases.Post("/", handler.AddNewCase)

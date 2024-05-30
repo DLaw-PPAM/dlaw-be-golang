@@ -56,7 +56,7 @@ func AddLawyer(c *fiber.Ctx) error {
 
 func GetAllLawyers(c *fiber.Ctx) error {
 	var lawyers []entity.LawyerUser
-	database.DB.Preload("Specialties").Find(&lawyers)
+	database.DB.Preload("Specialties").Preload("User").Preload("Reviews").Find(&lawyers)
 
 	return c.Status(200).JSON(fiber.Map{
 		"message": "All lawyers",
@@ -67,7 +67,7 @@ func GetAllLawyers(c *fiber.Ctx) error {
 func GetLawyerByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var lawyer entity.LawyerUser
-	database.DB.Preload("Specialties").Where("id = ?", id).First(&lawyer)
+	database.DB.Preload("Specialties").Preload("User").Preload("Reviews").Where("id = ?", id).First(&lawyer)
 
 	return c.Status(200).JSON(fiber.Map{
 		"message": "Lawyer found",
@@ -136,5 +136,34 @@ func AddSpecialtiestoLawyer(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"message": "Specialties added to lawyer",
 		"lawyer":  lawyer,
+	})
+}
+
+func SearchLawyer(c *fiber.Ctx) error {
+	searchRequest := new(dto.SearchLawyerRequestDTO)
+
+	if err := c.BodyParser(searchRequest); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Error parsing search request",
+			"error":   err.Error(),
+		})
+	}
+
+	validate := validator.New()
+	errValidate := validate.Struct(searchRequest)
+
+	if errValidate != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Error validating search request",
+			"error":   errValidate.Error(),
+		})
+	}
+
+	var lawyers []entity.LawyerUser
+	database.DB.Preload("Specialties").Preload("User").Preload("Reviews").Where("User.full_name LIKE ?", "%"+searchRequest.Name+"%").Find(&lawyers)
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Search results",
+		"lawyers": lawyers,
 	})
 }

@@ -55,6 +55,7 @@ func UserRegister(c *fiber.Ctx) error {
 
 	newUser := entity.User{
 		FullName:    user.FullName,
+		Username:    user.Username,
 		Email:       user.Email,
 		Password:    string(hashedPassword),
 		BirthDate:   birthDate,
@@ -71,6 +72,14 @@ func UserRegister(c *fiber.Ctx) error {
 		})
 	}
 
+	var existingUser2 entity.User
+	res2 := database.DB.Where("username = ?", user.Username).First(&existingUser2)
+	if res2.RowsAffected > 0 {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "Username already exists",
+		})
+	}
+
 	newUserRes := database.DB.Create(&newUser)
 
 	if newUserRes.Error != nil {
@@ -83,6 +92,7 @@ func UserRegister(c *fiber.Ctx) error {
 	responseDTO := dto.UserRegisterResponseDTO{
 		Message:     "New user created successfully",
 		ID:          newUser.ID,
+		Username:    newUser.Username,
 		FullName:    newUser.FullName,
 		Email:       newUser.Email,
 		BirthDate:   newUser.BirthDate.Format("2006-01-02"),

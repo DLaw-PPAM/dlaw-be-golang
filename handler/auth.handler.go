@@ -62,8 +62,10 @@ func UserLogin(ctx *fiber.Ctx) error {
 	}
 
 	responseDTO := dto.LoginResponseDTO{
-		Message: "Login successful",
-		Token:   token,
+		Message:  "Login successful",
+		Token:    token,
+		Username: existingUser.Username,
+		UserID:   existingUser.ID,
 	}
 
 	return ctx.Status(200).JSON(responseDTO)

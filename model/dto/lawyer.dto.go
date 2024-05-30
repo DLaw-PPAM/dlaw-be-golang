@@ -21,3 +21,11 @@ type AddLawyerResponseDTO struct {
 	Specialties  []entity.Specialties `json:"specialties"`
 	User         entity.User          `json:"user"`
 }
+
+type SearchLawyerRequestDTO struct {
+	Name string `json:"name"`
+}
+
+type SearchLawyerResponseDTO struct {
+	Lawyers []entity.LawyerUser `json:"lawyers"`
+}

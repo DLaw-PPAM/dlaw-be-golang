@@ -14,6 +14,7 @@ type LawyerUser struct {
 	Rating       int            `json:"rating"`
 	Specialties  []Specialties  `gorm:"many2many:lawyer_specialties;"`
 	User         User           `gorm:"foreignKey:ClientID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Reviews      []Review       `gorm:"many2many:lawyer_review;"`
 	CreatedAt    time.Time      `json:"created_at"`
 	UpdatedAt    time.Time      `json:"updated_at"`
 	DeletedAt    gorm.DeletedAt `gorm:"index"`

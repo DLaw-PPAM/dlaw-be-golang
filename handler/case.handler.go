@@ -74,3 +74,14 @@ func GetCaseByID(c *fiber.Ctx) error {
 		"case":    cases,
 	})
 }
+
+func GetCaseByUserID(c *fiber.Ctx) error {
+	id := c.Params("id")
+	var cases []entity.Case
+	database.DB.Where("client_id = ?", id).Find(&cases)
+
+	return c.Status(200).JSON(fiber.Map{
+		"message": "Case by user ID",
+		"case":    cases,
+	})
+}
